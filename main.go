@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/varyumin/creativeadvtech/cmd"
+import "creativeadvtech/cmd"
 
 func main() {
 	cmd.Execute()

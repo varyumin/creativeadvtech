@@ -16,13 +16,16 @@ limitations under the License.
 package cmd
 
 import (
+	"creativeadvtech/pkg"
 	"fmt"
-	"os"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
 )
 
 var cfgFile string
+var web pkg.ServerSettings
+var red pkg.RedisSettings
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

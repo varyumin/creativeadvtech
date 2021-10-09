@@ -16,11 +16,23 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"context"
+	"github.com/go-redis/redis"
+	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
-// serverCmd represents the server command
+var Conn *redis.Client
+
 var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "A brief description of your command",
@@ -31,12 +43,57 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("server called")
+		Conn = red.Connect()
+		log := logrus.New()
+		log.SetOutput(os.Stdout)
+		prometheus.MustRegister(opsProcessed)
+		recordMetrics()
+
+		log.Info("Starting the app...")
+
+		router := mux.NewRouter()
+		router.HandleFunc("/health", Health)
+		router.Handle("/metrics", promhttp.Handler())
+		router.HandleFunc("/", GetCounter).Methods("GET")
+		router.HandleFunc("/", UpdateCounter).Methods("POST")
+		router.HandleFunc("/", IncrementCounter).Methods("PUT")
+		router.HandleFunc("/", DeleteCounter).Methods("DELETE")
+
+		serv := http.Server{
+			Addr:    net.JoinHostPort(web.Host, web.Port),
+			Handler: router,
+		}
+
+		go serv.ListenAndServe()
+
+		log.Infof("Started the app...: %s:%s", web.Host, web.Port)
+
+		interrupt := make(chan os.Signal, 1)
+		signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
+		<-interrupt
+
+		log.Info("Stopping app...")
+
+		timeout, cancelFunc := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelFunc()
+		err := serv.Shutdown(timeout)
+		if err != nil {
+			log.Error("Error when shutdown app: %v", err)
+		}
+
+		log.Info("The app stopped")
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(serverCmd)
+	serverCmd.PersistentFlags().StringVarP(&web.Host, "web-server", "s", "0.0.0.0", "Host web server")
+	serverCmd.PersistentFlags().StringVarP(&web.Port, "web-port", "p", "8080", "Port web server")
+	serverCmd.PersistentFlags().StringVarP(&red.Host, "redis-server", "r", "127.0.0.1", "Redis server")
+	serverCmd.PersistentFlags().StringVarP(&red.Port, "redis-port", "d", "6379", "Redis port")
+	serverCmd.PersistentFlags().StringVarP(&red.Password, "redis-password", "P", "", "Redis password")
+	serverCmd.PersistentFlags().IntVarP(&red.DB, "redis-db", "D", 0, "Redis DB")
 
 	// Here you will define your flags and configuration settings.
 

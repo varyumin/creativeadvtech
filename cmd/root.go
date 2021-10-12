@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"creativeadvtech/pkg"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -24,8 +23,8 @@ import (
 )
 
 var cfgFile string
-var web pkg.ServerSettings
-var red pkg.RedisSettings
+var web ServerSettings
+var red RedisSettings
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

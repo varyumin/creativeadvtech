@@ -1,4 +1,4 @@
-package pkg
+package cmd
 
 import (
 	"github.com/go-redis/redis"

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"creativeadvtech/pkg"
 	"encoding/json"
 	"fmt"
 	"github.com/sirupsen/logrus"
@@ -9,7 +8,7 @@ import (
 )
 
 func InitRedis() {
-	var b pkg.BodyJson
+	var b BodyJson
 	b.Flush()
 
 	json, err := json.Marshal(b)
@@ -23,7 +22,7 @@ func InitRedis() {
 }
 
 func GetValRedisString() float64 {
-	var answer pkg.BodyJson
+	var answer BodyJson
 	val, err := Conn.Get("foo").Result()
 	if err != nil {
 		InitRedis()

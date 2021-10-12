@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"creativeadvtech/pkg"
 	"encoding/json"
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
@@ -46,7 +45,7 @@ func Health(w http.ResponseWriter, r *http.Request) {
 //}
 
 func GetCounter(w http.ResponseWriter, r *http.Request) {
-	var answer pkg.BodyJson
+	var answer BodyJson
 
 	val, err := Conn.Get("foo").Result()
 	if err != nil {
@@ -66,7 +65,7 @@ func GetCounter(w http.ResponseWriter, r *http.Request) {
 }
 
 func IncrementCounter(w http.ResponseWriter, r *http.Request) {
-	var answer pkg.BodyJson
+	var answer BodyJson
 
 	val, err := Conn.Get("foo").Result()
 	if err != nil {
@@ -104,7 +103,7 @@ func IncrementCounter(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateCounter(w http.ResponseWriter, r *http.Request) {
-	var answer pkg.BodyJson
+	var answer BodyJson
 
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
@@ -146,7 +145,7 @@ func UpdateCounter(w http.ResponseWriter, r *http.Request) {
 func DeleteCounter(w http.ResponseWriter, r *http.Request) {
 	InitRedis()
 
-	var answer pkg.BodyJson
+	var answer BodyJson
 
 	val, err := Conn.Get("foo").Result()
 	if err != nil {

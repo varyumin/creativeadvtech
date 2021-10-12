@@ -1,0 +1,20 @@
+apiVersion: skaffold/v2beta3
+kind: Config
+build:
+  artifacts:
+    - image: varyumin/creativeadvtech
+  tagPolicy:
+    sha256: {}
+
+deploy:
+  helm:
+    releases:
+      - name: creativeadvtech
+        chartPath: helm/creativeadvtech
+        namespace: default
+        skipBuildDependencies: true
+        wait: false
+        setValues:
+          skaffold.run: true
+        values:
+          image.repository: varyumin/creativeadvtech
